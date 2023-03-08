@@ -9,7 +9,7 @@
 import numpy as np
 import networkx as nx
 import scipy as sp
-from scipy.integrate import solve_ivp
+from scipy.integrate import solve_ivp as scipy_solve
 from scipy.linalg import block_diag
 
 
@@ -69,7 +69,7 @@ class DynaNet():
     	K = self.incidence_mtx
     	self.laplacian_mtx = np.dot(K, np.transpose(K))
 
-    def solve_ivp(self, df, f0, t0, tf, nt, *args):
+    def solve_ivp(self, df, f0, t0, tf, nt, *args, **kwargs):
         '''
         df: function of f' takes in a incidence matrix, gradient matrix a state i, and a time t returns derivative
         f0: Initial value
@@ -90,8 +90,14 @@ class DynaNet():
         dt = (tf-t0)/nt
         f = np.zeros([self.adj_mtx.shape[0], len(t)])
 
+        # check if alternative solver is being used
+        if "solver" in kwargs.keys():
+            solver = kwargs["solver"]
+        else:
+            solver = scipy_solve
+
         # Run graph PDE and store results in internal state
-        results = solve_ivp(df, [t[0], t[-1]], f0, t_eval=t, args=tuple([Glap, Ggrad] + list(args)))
+        results = solver(df, [t[0], t[-1]], f0, t_eval=t, args=tuple([Glap, Ggrad] + list(args)))
         self.solve_ivp_results = results
             
 
@@ -156,7 +162,7 @@ class MultiplexDynaNet():
     	self.multi_laplacian = block_diag(*[k for k in self.laplacian_matrices])
 
 
-    def solve_ivp(self, df, f0, t0, tf, nt, *args):
+    def solve_ivp(self, df, f0, t0, tf, nt, *args, **kwargs):
         '''
         df: function of f' takes in a incidence matrix, gradient matrix a state i, and a time t returns derivative
         f0: Initial value
@@ -174,6 +180,12 @@ class MultiplexDynaNet():
         t = np.linspace(t0, tf, nt)
         dt = (tf-t0)/nt
 
+        # check for alternative ivp solver
+        if "solver" in kwargs.keys():
+            solver = kwargs["solver"]
+        else:
+            solver = scipy_solve
+
         # Run graph PDE and store results in internal state
-        results = solve_ivp(df, [t[0], t[-1]], f0, t_eval=t, args=tuple([Glap] + list(args)))
+        results = solver(df, [t[0], t[-1]], f0, t_eval=t, args=tuple([Glap] + list(args)))
         self.solve_ivp_results = results
