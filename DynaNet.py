@@ -11,7 +11,8 @@ import networkx as nx
 import scipy as sp
 from scipy.integrate import solve_ivp as scipy_solve
 from scipy.linalg import block_diag
-
+from matplotlib import pyplot as plt
+from matplotlib import animation
 
 class DynaNet():
     def __init__(self, structure = '', adj_mtx = [], adj_lst = []):
@@ -189,3 +190,43 @@ class MultiplexDynaNet():
         # Run graph PDE and store results in internal state
         results = solver(df, [t[0], t[-1]], f0, t_eval=t, args=tuple([Glap] + list(args)))
         self.solve_ivp_results = results
+
+def visualize(res_y, res_t, adjacency_matrix, time_rate):
+    """
+    This function takes a results object from DynaNets solve_ivp and renders them into a heatmap
+    """
+
+    G = nx.from_numpy_array(adjacency_matrix)
+    pos = nx.kamada_kawai_layout(G)
+    fig, ax = plt.subplots()
+
+    def animation_prep(res_y, res_t, time_rate):
+        
+        # Get max and min for normalized colors
+        vmin = np.min(res_y)
+        vmax = np.max(res_y)
+        
+        def update(frame):
+            
+            # Clear out axes
+            ax.clear()
+
+            # Get weights for this specific frame for coloring
+            color_weights = res_y[:, frame*time_rate]
+            
+            # Draw out our edges
+            nx.draw_networkx_edges(G, pos=pos, ax=ax, edge_color="gray")
+            null_nodes = nx.draw_networkx_nodes(G, pos=pos, nodelist=G.nodes, node_color=color_weights, ax=ax, cmap="PuBu_r", vmin=vmin, vmax=vmax)
+            null_nodes.set_edgecolor("black")
+            
+            ax.set_title(f"Frame {frame+1}: Time: {res_t[frame*time_rate]}", fontweight="bold")
+            ax.set_xticks([])
+            ax.set_yticks([])
+         
+        return update
+
+    update = animation_prep(res_y, res_t, 10)
+    return (fig, update)
+    #ani = animation.FuncAnimation(fig, update, 100, repeat=True, blit=True)
+
+
