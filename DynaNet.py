@@ -13,6 +13,7 @@ from scipy.integrate import solve_ivp as scipy_solve
 from scipy.linalg import block_diag
 from matplotlib import pyplot as plt
 from matplotlib import animation
+from matplotlib import cm
 
 class DynaNet():
     def __init__(self, structure = '', adj_mtx = [], adj_lst = []):
@@ -206,6 +207,9 @@ def visualize(res_y, res_t, adjacency_matrix, time_rate):
         vmin = np.min(res_y)
         vmax = np.max(res_y)
         
+        cax = fig.add_axes([0.8, 0.2, 0.05, 0.5])
+        fig.colorbar(cm.ScalarMappable( cmap="PuBu_r"), cax=cax)
+
         def update(frame):
             
             # Clear out axes
@@ -222,7 +226,7 @@ def visualize(res_y, res_t, adjacency_matrix, time_rate):
             ax.set_title(f"Frame {frame+1}: Time: {res_t[frame*time_rate]}", fontweight="bold")
             ax.set_xticks([])
             ax.set_yticks([])
-         
+
         return update
 
     update = animation_prep(res_y, res_t, 10)
