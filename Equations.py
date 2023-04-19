@@ -35,6 +35,20 @@ def FisherKPPStep(time, state, laplacian, gradient, ks, vs):
 
 	return np.dot(laplacian, ks*state) + state*(1-state)
 
+def FisherKPPExtendedStep(time, state, laplacian, gradient, ks, vs, rate, capacity):
+	'''
+	time: current time
+	state: current state vector
+	laplacian: current graph laplacian
+	gradient: current graph gradient
+	ks: vector of diffusion coefficients
+	vs: vector of velocities at different nodes
+
+	returns: change in state with respect to the Fisher-KPP equation
+	'''
+
+	return np.dot(laplacian, ks*state) + rate*state*(capacity-state)
+
 def MultiplexFisherKPPStep(time, state, multi_laplacian, ks, vs, coupling):
 	'''
 	time: current time
