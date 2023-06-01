@@ -63,3 +63,16 @@ def MultiplexFisherKPPStep(time, state, multi_laplacian, ks, vs, coupling):
 
 	return np.dot(multi_laplacian, ks*state) + state*(1-state) + coupling(state)
 
+def MultiplexRxnDffn(time, state, multi_laplacian, ks, vs, coupling):
+	'''
+	time: current time
+	state: current state vector
+	multilaplacian: current graph laplacian
+	ks: vector of diffusion coefficients
+	vs: vector of velocities at different nodes
+	coupling: a fuction of state specifying how the equations are coupled
+
+	returns: change in state with respect to the Fisher-KPP equation
+	'''
+
+	return np.dot(multi_laplacian, ks*state) + coupling(state)

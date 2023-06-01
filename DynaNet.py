@@ -189,7 +189,7 @@ class MultiplexDynaNet():
             solver = scipy_solve
 
         # Run graph PDE and store results in internal state
-        results = solver(df, [t[0], t[-1]], f0, t_eval=t, args=tuple([Glap] + list(args)))
+        results = solver(df, [t[0], t[-1]], f0, t_eval=t, method='Radau', args=tuple([Glap] + list(args)))
         self.solve_ivp_results = results
 
 def visualize(res_y, res_t, adjacency_matrix, time_rate):
