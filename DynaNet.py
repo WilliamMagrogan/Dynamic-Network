@@ -192,7 +192,7 @@ class MultiplexDynaNet():
         results = solver(df, [t[0], t[-1]], f0, t_eval=t, method='Radau', args=tuple([Glap] + list(args)))
         self.solve_ivp_results = results
 
-def visualize(res_y, res_t, adjacency_matrix, time_rate):
+def visualize(res_y, res_t, adjacency_matrix, time_rate, frametitles):
     """
     This function takes a results object from DynaNets solve_ivp and renders them into a heatmap
     """
@@ -226,6 +226,9 @@ def visualize(res_y, res_t, adjacency_matrix, time_rate):
             ax.set_title(f"Frame {frame+1}: Time: {res_t[frame*time_rate]}", fontweight="bold")
             ax.set_xticks([])
             ax.set_yticks([])
+
+            # save as frames
+            plt.savefig(frametitles+f"{frame}")
 
         return update
 
